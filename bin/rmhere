@@ -1,0 +1,189 @@
+#!/usr/bin/perl
+
+use 5.010001;
+use strict;
+use warnings;
+
+our $VERSION = '0.01'; # VERSION
+
+use Perinci::CmdLine;
+Perinci::CmdLine->new(url => '/App/rmhere/rmhere')->run;
+
+1;
+# ABSTRACT: Remove all files in the current directory (with options)
+# PODNAME: rmhere
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+rmhere - Remove all files in the current directory (with options)
+
+=head1 VERSION
+
+version 0.01
+
+=head1 SYNOPSIS
+
+In a directory with many files which you want to delete:
+
+ % rmhere -f
+
+To show progress:
+
+ % rmhere -fp
+
+To show progress and count the number of files first (so it'll show percentage
+up to 100% and estimated completion time):
+
+ % rmhere -fP
+
+Delete recursively, set location:
+
+ % rmhere -Rf --here /tmp/files
+
+Don't actually delete files, only show:
+
+ % rmhere -f --dry-run
+
+Only delete files matching a wildcard:
+
+ % rmhere --nodir -R --match '*.txt'
+
+=head1 DESCRIPTION
+
+NOTE: Early release, some options not yet implemented: --dir, --file, --match,
+--recursive.
+
+When deleting many files in a directory (thousands, millions), the venerable
+L<rm> Unix command is rather cumbersome to use. If you issue C<rm *> the shell
+will usually complain with "Argument list too long" because it expands the
+wildcard first. You can also use C<< find ./ -type f -maxdepth 1 -delete >>.
+This B<rmhere> command is equivalent to that, with some extra options and
+features:
+
+=over
+
+=item * Progress report
+
+=item * Dry-run
+
+Just set DRY_RUN=1 or C<--dry-run> to enter dry-run (simulation) mode.
+
+=item * Recursive option
+
+Using C<-R>.
+
+=back
+
+For safety, the default behavior is C<-i>. That means, if B<rmhere> is executed
+without argument, it will ask before deleting each file.
+
+=head1 COMMAND-LINE OPTIONS
+
+=head2 --[no]dir, -d
+
+Whether or not to delete directories. The default is to not delete directories.
+
+=head2 --dry-run
+
+=head2 --estimate
+
+Count the number of files to delete first.
+
+=head2 --[no]file
+
+Whether or not to delete files. Default to yes.
+
+XXX Should we have this option at all? Considering that -f is already taken for
+--force.
+
+=head2 --force, -f
+
+Equivalent to --nointeractive.
+
+=head2 --here=DIR
+
+Set directory to start deleting.
+
+=head2 --[no]interactive, -i
+
+Whether to ask interactively before deleting each entry.
+
+=head2 --match PAT
+
+Only delete item matching wildcard pattern C<PAT>.
+
+=head2 --progress, -p
+
+Show progress report.
+
+=head2 -P
+
+Equivalent to --progress --estimate.
+
+=head2 --recursive, -R
+
+Delete recursively. Turn on C<--dir> implicitly.
+
+=head1 PERFORMANCE NOTES
+
+My system: customer SATA HDD 7200rpm, Debian/Linux, ext3fs, Core i5-2400 3.1GHz.
+B<rmhere> performs worse than B<rm> for small to medium number of files (1-200k
+files), but as the number of files approaches 1+ million, there are practically
+no difference in performance as the bottleneck lies in the filesystem. Some
+numbers:
+
+Creating 200k files using C<< touch `seq 1 200000` >>: 5s.
+
+Deleting 200k files using C<< rm >>: 6s.
+
+Deleting 200k files using C<< rmhere -fP >>: 1m10s.
+
+Creating 1 million files using C<< touch `seq 1 200000`;touch `seq 200001
+400000`;touch `seq 400001 600000`; touch `seq 600001 800000`; touch `seq 800001
+1000000` >>: 32s.
+
+Deleting 1 million files using C<< rm >> fails ("Argument list too long").
+
+Deleting 1 million files using C<< find -type f | xargs -n 50000 rm >>: about
+30m.
+
+Deleting 1 million files using C<< rmhere -fP >>: about 30m.
+
+=head1 SEE ALSO
+
+L<rm>, L<find>
+
+=head1 HOMEPAGE
+
+Please visit the project's homepage at L<https://metacpan.org/release/App-rmhere>.
+
+=head1 SOURCE
+
+Source repository is at L<https://github.com/sharyanto/perl-App-rmhere>.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website L<https://rt.cpan.org/Public/Dist/Display.html?Name=App-rmhere>
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
+
+=head1 AUTHOR
+
+Steven Haryanto <stevenharyanto@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Steven Haryanto.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
