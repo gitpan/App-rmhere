@@ -4,7 +4,7 @@ use 5.010001;
 use strict;
 use warnings;
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 use Perinci::CmdLine;
 Perinci::CmdLine->new(url => '/App/rmhere/rmhere')->run;
@@ -25,7 +25,7 @@ rmhere - Remove all files in the current directory (with options)
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 

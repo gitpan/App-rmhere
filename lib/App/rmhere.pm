@@ -15,7 +15,7 @@ use Time::HiRes qw(sleep);
 #our @ISA       = qw(Exporter);
 #our @EXPORT_OK = qw(rmhere);
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 our %SPEC;
 
@@ -133,7 +133,7 @@ sub rmhere {
 
         if ($progress) {
             $progress->update(message => "Deleted $i files".
-                          $files ? " (out of ".@$files.")" : "");
+                                  ($files ? " (out of ".@$files.")" : ""));
         }
     }
     $progress->finish if $progress;
@@ -155,7 +155,11 @@ App::rmhere - Delete files in current directory
 
 =head1 VERSION
 
-version 0.01
+version 0.02
+
+=head1 RELEASE DATE
+
+2014-04-25
 
 =head1 SYNOPSIS
 
