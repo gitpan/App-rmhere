@@ -15,7 +15,7 @@ use Time::HiRes qw(sleep);
 #our @ISA       = qw(Exporter);
 #our @EXPORT_OK = qw(rmhere);
 
-our $VERSION = '0.02'; # VERSION
+our $VERSION = '0.03'; # VERSION
 
 our %SPEC;
 
@@ -26,6 +26,15 @@ $SPEC{rmhere} = {
         estimate => {
             summary => 'Count files first before start deleting',
             schema  => 'bool*',
+            description => <<'_',
+
+With this opotion, the program will do an `opendir` and list the directory
+first. This can take several minutes if the directory is large, so the program
+will not start deleting after several minutes. But with this option, we know how
+many files we want to delete, so the progress report will know when to reach
+100%.
+
+_
         },
         here => {
             summary => 'Override current directory',
@@ -95,6 +104,7 @@ sub rmhere {
         return undef;
     };
     my $files;
+    my $num_files;
 
     $progress->pos(0) if $progress;
     if ($args{estimate}) {
@@ -102,7 +112,8 @@ sub rmhere {
         while (defined(my $e = $get_next_file->())) {
             push @$files, $e;
         }
-        $progress->target(~~@$files) if $progress;
+        $num_files = @$files;
+        $progress->target($num_files) if $progress;
     } else {
         $progress->target(undef) if $progress;
     }
@@ -132,8 +143,9 @@ sub rmhere {
         }
 
         if ($progress) {
-            $progress->update(message => "Deleted $i files".
-                                  ($files ? " (out of ".@$files.")" : ""));
+            $progress->update(
+                message => "Deleted $i files".
+                    ($files ? " (out of $num_files)" : ""));
         }
     }
     $progress->finish if $progress;
@@ -155,7 +167,7 @@ App::rmhere - Delete files in current directory
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 RELEASE DATE
 
@@ -184,6 +196,12 @@ Arguments ('*' denotes required arguments):
 =item * B<estimate> => I<bool>
 
 Count files first before start deleting.
+
+With this opotion, the program will do an C<opendir> and list the directory
+first. This can take several minutes if the directory is large, so the program
+will not start deleting after several minutes. But with this option, we know how
+many files we want to delete, so the progress report will know when to reach
+100%.
 
 =item * B<here> => I<str>
 
